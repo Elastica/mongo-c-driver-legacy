@@ -1202,6 +1202,7 @@ static int mongo_cursor_op_query( mongo_cursor *cursor ) {
 
     bson_fatal_msg( ( data == ( ( char * )mm ) + mm->head.len ), "query building fail!" );
 
+    bson_free( cursor->reply );
     res = mongo_message_send( cursor->conn , mm );
     if( res != MONGO_OK ) {
         return MONGO_ERROR;
@@ -1269,7 +1270,8 @@ static int mongo_cursor_get_more( mongo_cursor *cursor ) {
         bson_free( cursor->reply );
         res = mongo_message_send( cursor->conn, mm );
         if( res != MONGO_OK ) {
-            mongo_cursor_destroy( cursor );
+            //Caller destroys the cursor
+            //mongo_cursor_destroy( cursor );
             return MONGO_ERROR;
         }
 
@@ -1380,7 +1382,8 @@ MONGO_EXPORT int mongo_cursor_next( mongo_cursor *cursor ) {
         /* Special case for tailable cursors. */
         if( cursor->reply->fields.cursorID ) {
             if( ( mongo_cursor_get_more( cursor ) != MONGO_OK ) ||
-                    cursor->reply->fields.num == 0 ) {
+                  !cursor->reply ||
+                    cursor->reply && cursor->reply->fields.num == 0 ) {
                 return MONGO_ERROR;
             }
         }
@@ -1404,7 +1407,8 @@ MONGO_EXPORT int mongo_cursor_next( mongo_cursor *cursor ) {
     message_end = ( char * )cursor->reply + cursor->reply->head.len;
 
     if ( next_object >= message_end ) {
-        if( mongo_cursor_get_more( cursor ) != MONGO_OK )
+        if( mongo_cursor_get_more( cursor ) != MONGO_OK ||
+            !cursor->reply )
             return MONGO_ERROR;
 
         if ( cursor->reply->fields.num == 0 ) {
