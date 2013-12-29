@@ -1203,6 +1203,7 @@ static int mongo_cursor_op_query( mongo_cursor *cursor ) {
     bson_fatal_msg( ( data == ( ( char * )mm ) + mm->head.len ), "query building fail!" );
 
     bson_free( cursor->reply );
+    cursor->reply = NULL;
     res = mongo_message_send( cursor->conn , mm );
     if( res != MONGO_OK ) {
         return MONGO_ERROR;
@@ -1268,10 +1269,10 @@ static int mongo_cursor_get_more( mongo_cursor *cursor ) {
         mongo_data_append64( data, &cursor->reply->fields.cursorID );
 
         bson_free( cursor->reply );
+        cursor->reply = NULL;
         res = mongo_message_send( cursor->conn, mm );
         if( res != MONGO_OK ) {
-            //Caller destroys the cursor
-            //mongo_cursor_destroy( cursor );
+            mongo_cursor_destroy( cursor );
             return MONGO_ERROR;
         }
 
@@ -1382,8 +1383,8 @@ MONGO_EXPORT int mongo_cursor_next( mongo_cursor *cursor ) {
         /* Special case for tailable cursors. */
         if( cursor->reply->fields.cursorID ) {
             if( ( mongo_cursor_get_more( cursor ) != MONGO_OK ) ||
-                  !cursor->reply ||
-                    cursor->reply && cursor->reply->fields.num == 0 ) {
+                  (!cursor->reply) ||
+                    (cursor->reply && cursor->reply->fields.num == 0) ) {
                 return MONGO_ERROR;
             }
         }
@@ -1456,7 +1457,9 @@ MONGO_EXPORT int mongo_cursor_destroy( mongo_cursor *cursor ) {
     }
 
     bson_free( cursor->reply );
+    cursor->reply = NULL;
     bson_free( ( void * )cursor->ns );
+    cursor->ns = NULL;
 
     if( cursor->flags & MONGO_CURSOR_MUST_FREE )
         bson_free( cursor );
