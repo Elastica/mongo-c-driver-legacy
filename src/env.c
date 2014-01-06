@@ -73,7 +73,13 @@ int mongo_env_read_socket( mongo *conn, void *buf, size_t len ) {
 }
 
 int mongo_env_set_socket_op_timeout( mongo *conn, int millis ) {
-    if ( setsockopt( conn->sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&millis,
+    struct timeval timeout;
+    int microsecs = millis % 1000;
+    millis = millis/1000;
+    timeout.tv_sec = millis;
+    timeout.tv_usec = microsecs * 1000;
+
+    if ( setsockopt( conn->sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout,
                      sizeof( millis ) ) == -1 ) {
         __mongo_set_error( conn, MONGO_IO_ERROR, "setsockopt SO_RCVTIMEO failed.",
                            WSAGetLastError() );

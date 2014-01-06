@@ -1,5 +1,3 @@
-/* mongo.c */
-
 /*    Copyright 2009-2012 10gen Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -1462,7 +1460,11 @@ MONGO_EXPORT int mongo_cursor_destroy( mongo_cursor *cursor ) {
     cursor->ns = NULL;
 
     if( cursor->flags & MONGO_CURSOR_MUST_FREE )
+    {
+        /* clear the flags */
+        cursor->flags = 0;
         bson_free( cursor );
+    }
 
     return result;
 }
