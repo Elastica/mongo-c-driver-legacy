@@ -73,13 +73,8 @@ int mongo_env_read_socket( mongo *conn, void *buf, size_t len ) {
 }
 
 int mongo_env_set_socket_op_timeout( mongo *conn, int millis ) {
-    struct timeval timeout;
-    int microsecs = millis % 1000;
-    millis = millis/1000;
-    timeout.tv_sec = millis;
-    timeout.tv_usec = microsecs * 1000;
 
-    if ( setsockopt( conn->sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout,
+    if ( setsockopt( conn->sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&millis,
                      sizeof( millis ) ) == -1 ) {
         __mongo_set_error( conn, MONGO_IO_ERROR, "setsockopt SO_RCVTIMEO failed.",
                            WSAGetLastError() );
@@ -355,6 +350,17 @@ int mongo_env_socket_connect( mongo *conn, const char *host, int port ) {
             continue;
         }
         
+        // Need to set these socket options before the socket
+        // connect otherwise found that it doesnt take effect
+        if ( ai_ptr->ai_protocol == IPPROTO_TCP ) {
+            int flag = 1;
+
+            setsockopt( conn->sock, IPPROTO_TCP, TCP_NODELAY,
+                        ( void * ) &flag, sizeof( flag ) );
+            if ( conn->op_timeout_ms > 0 )
+                mongo_env_set_socket_op_timeout( conn, conn->op_timeout_ms );
+        }
+
         status = connect( conn->sock, ai_ptr->ai_addr, ai_ptr->ai_addrlen );
         if ( status != 0 ) {
             mongo_env_close_socket( conn->sock );
@@ -368,15 +374,6 @@ int mongo_env_socket_connect( mongo *conn, const char *host, int port ) {
                        ( void * ) &flag, sizeof( flag ) );
         }
 #endif
-
-        if ( ai_ptr->ai_protocol == IPPROTO_TCP ) {
-            int flag = 1;
-
-            setsockopt( conn->sock, IPPROTO_TCP, TCP_NODELAY,
-                        ( void * ) &flag, sizeof( flag ) );
-            if ( conn->op_timeout_ms > 0 )
-                mongo_env_set_socket_op_timeout( conn, conn->op_timeout_ms );
-        }
 
         conn->connected = 1;
         break;

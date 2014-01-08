@@ -434,7 +434,11 @@ MONGO_EXPORT void mongo_init( mongo *conn ) {
 }
 
 MONGO_EXPORT int mongo_client( mongo *conn , const char *host, int port ) {
-    mongo_init( conn );
+    //Need a way for applications to set the op timeout
+    //It doesnt make sense to clear it here..
+    //Apps will init the conn and then set the custom timeout value
+    //which will propagate to the socket below..
+    //mongo_init( conn );
 
     conn->primary = (mongo_host_port*)bson_malloc( sizeof( mongo_host_port ) );
     snprintf( conn->primary->host, MAXHOSTNAMELEN, "%s", host);
@@ -692,7 +696,7 @@ MONGO_EXPORT int mongo_replset_connect( mongo *conn ) {
 MONGO_EXPORT int mongo_set_op_timeout( mongo *conn, int millis ) {
     conn->op_timeout_ms = millis;
     if( conn->sock && conn->connected )
-        mongo_env_set_socket_op_timeout( conn, millis );
+        return mongo_env_set_socket_op_timeout( conn, millis );
 
     return MONGO_OK;
 }
