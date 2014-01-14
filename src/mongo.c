@@ -1274,7 +1274,10 @@ static int mongo_cursor_get_more( mongo_cursor *cursor ) {
         cursor->reply = NULL;
         res = mongo_message_send( cursor->conn, mm );
         if( res != MONGO_OK ) {
-            mongo_cursor_destroy( cursor );
+            //Let the caller destroy the cursor both and success and
+            //failed scenario. Look below when read response
+            //fails we are not destroying cursor
+            //mongo_cursor_destroy( cursor );
             return MONGO_ERROR;
         }
 
