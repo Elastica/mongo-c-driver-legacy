@@ -89,14 +89,14 @@ PLATFORM_TESTS = []
 NET_LIB = "src/env.c"
 if GetOption('standard_env'):
     env.Append( CPPFLAGS=" -DMONGO_ENV_STANDARD " )
-elif os.sys.platform in ["darwin", "linux2"]:
+elif os.sys.platform in ["darwin", "linux"]:
     PLATFORM_TESTS = [ "env_posix", "unix_socket" ]
 elif 'win32' == os.sys.platform:
     PLATFORM_TESTS = [ "env_win32" ]
 
 
 # ---- Libraries ----
-if os.sys.platform in ["darwin", "linux2"]:
+if os.sys.platform in ["darwin", "linux"]:
     env.Append( CPPFLAGS="-pedantic -Wall -ggdb -DMONGO_HAVE_STDINT" )
     if not GetOption('standard_env'):
         env.Append( CPPFLAGS=" -D_POSIX_SOURCE -D_DARWIN_C_SOURCE" )
@@ -181,7 +181,7 @@ mSharedObjs = env.SharedObject(mLibFiles)
 bSharedObjs = env.SharedObject(bLibFiles)
 
 bsonEnv = env.Clone()
-if os.sys.platform == "linux2":
+if os.sys.platform == "linux":
     env.Append( SHLINKFLAGS = "-shared -Wl,-soname,libmongoc.so." + MAJOR_VERSION + "." + MINOR_VERSION )
     bsonEnv.Append( SHLINKFLAGS = "-shared -Wl,-soname,libbson.so." + MAJOR_VERSION + "." + MINOR_VERSION)
     dynm = env.SharedLibrary( "mongoc" , mSharedObjs )

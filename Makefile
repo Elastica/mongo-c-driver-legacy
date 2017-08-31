@@ -53,8 +53,7 @@ DYN_BSON_OBJECTS=$(foreach i,$(BSON_OBJECTS),$(patsubst %.o,%.os,$(i)))
 
 # Compile flags
 ALL_DEFINES=$(DEFINES)
-ALL_DEFINES+=-D_POSIX_SOURCE
-CC:=$(shell sh -c 'type $(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
+CC:=gcc
 DYN_FLAGS:=-fPIC -DMONGO_DLL_BUILD
 
 # Endianness check
@@ -83,7 +82,7 @@ WARNINGS?=-Wall
 DEBUG?=-ggdb
 STD?=c99
 PEDANTIC?=-pedantic
-ALL_CFLAGS=-std=$(STD) $(PEDANTIC) $(CFLAGS) $(OPTIMIZATION) $(WARNINGS) $(DEBUG) $(ALL_DEFINES)
+ALL_CFLAGS=$(PEDANTIC) $(CFLAGS) $(OPTIMIZATION) $(WARNINGS) $(DEBUG) $(ALL_DEFINES)
 ALL_LDFLAGS=$(LDFLAGS)
 
 # Shared libraries
