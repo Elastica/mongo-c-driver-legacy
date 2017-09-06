@@ -170,11 +170,14 @@ int test_insert_limits( const char *set_name ) {
     return 0;
 }
 
-int main() {
-    ASSERT( test_connect_deprecated( REPLICA_SET_NAME ) == MONGO_OK );
-    ASSERT( test_connect( REPLICA_SET_NAME ) == MONGO_OK );
-    ASSERT( test_connect( "test-foobar" ) == MONGO_CONN_BAD_SET_NAME );
-    ASSERT( test_insert_limits( REPLICA_SET_NAME ) == MONGO_OK );
+int main(int argc, char **argv) {
+    
+    GETSERVERNAME;
+
+    ASSERT( test_connect_deprecated(_servername, REPLICA_SET_NAME ) == MONGO_OK );
+    ASSERT( test_connect(_servername, REPLICA_SET_NAME ) == MONGO_OK );
+    ASSERT( test_connect(_servername, "test-foobar" ) == MONGO_CONN_BAD_SET_NAME );
+    ASSERT( test_insert_limits(_servername,  REPLICA_SET_NAME ) == MONGO_OK );
 
     /*
     ASSERT( test_reconnect( "test-rs" ) == 0 );

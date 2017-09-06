@@ -148,7 +148,7 @@ int run_json_to_bson_test( char *js , int size , const char *hash ) {
 
 #define JSONBSONTEST run_json_to_bson_test
 
-int main() {
+int main(int argc, char **argv) {
 
     run_json_to_bson_test( "1" , 0 , 0 );
 

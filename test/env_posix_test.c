@@ -8,16 +8,19 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
+#include <getopt.h>
+
 
 /* Test read timeout by causing the
  * server to sleep for 10s on a query.
  */
-int test_read_timeout( void ) {
+int test_read_timeout(char *_servername ) {
     mongo conn[1];
     bson b, obj, out;
     int res;
 
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     bson_init( &b );
     bson_append_code( &b, "$where", "sleep( 10 * 1000 );");
@@ -48,12 +51,12 @@ int test_read_timeout( void ) {
 }
 
 /* Test getaddrinfo() by successfully connecting to 'localhost'. */
-int test_getaddrinfo( void ) {
+int test_getaddrinfo( char *_servername ) {
     mongo conn[1];
     bson b[1];
     char *ns = "test.foo";
 
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     mongo_cmd_drop_collection( conn, "test", "foo", NULL );
 
@@ -72,7 +75,7 @@ int test_getaddrinfo( void ) {
     return 0;
 }
 
-int test_error_messages( void ) {
+int test_error_messages( char *_servername ) {
     mongo conn[1];
     bson b[1];
     const char *ns = "test.foo";
@@ -98,14 +101,15 @@ int test_error_messages( void ) {
     return 0;
 }
 
-int main() {
+int main(int argc, char **argv) {
     char version[10];
 
+    GETSERVERNAME;
     if( mongo_get_server_version( version ) != -1 && version[0] != '1' ) {
-        test_read_timeout();
+        test_read_timeout(_servername);
     }
-    test_getaddrinfo();
-    test_error_messages();
+    test_getaddrinfo(_servername);
+    test_error_messages(_servername);
 
     return 0;
 }

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <getopt.h>
 
 #define BATCH_SIZE 10
 
@@ -16,7 +17,7 @@ static void make_small_invalid( bson *out, int i ) {
     bson_finish( out );
 }
 
-int main() {
+int main(int argc, char **argv) {
     mongo conn[1];
     bson b;
     mongo_cursor cursor[1];
@@ -32,8 +33,9 @@ int main() {
     not_utf8[1] = 0xC0;
     not_utf8[2] = '\0';
 
+    GETSERVERNAME;
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     /* Test checking for finished bson. */
     bson_init( &b );

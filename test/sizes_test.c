@@ -4,7 +4,7 @@
 #include "mongo.h"
 #include <stdio.h>
 
-int main() {
+int main(int argc, char **argv) {
     mongo_reply mr;
 
     ASSERT( sizeof( int ) == 4 );

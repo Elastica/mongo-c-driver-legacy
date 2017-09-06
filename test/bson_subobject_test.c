@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-int main() {
+int main(int argc, char **argv) {
     bson_iterator it[1], it2[1];
     bson b[1];
     bson sub[1];

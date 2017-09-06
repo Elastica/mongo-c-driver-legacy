@@ -15,7 +15,7 @@
 #define REPLICA_SET_NAME "replica-set-foo"
 #endif
 
-int test_connect_deprecated( const char *set_name ) {
+int test_connect_deprecated( const char *server, const char *set_name ) {
 
     mongo conn[1];
     int res;
@@ -23,8 +23,8 @@ int test_connect_deprecated( const char *set_name ) {
     INIT_SOCKETS_FOR_WINDOWS;
 
     mongo_replset_init( conn, set_name );
-    mongo_replset_add_seed( conn, TEST_SERVER, SEED_START_PORT + 1 );
-    mongo_replset_add_seed( conn, TEST_SERVER, SEED_START_PORT );
+    mongo_replset_add_seed( conn, server, SEED_START_PORT + 1 );
+    mongo_replset_add_seed( conn, server, SEED_START_PORT );
 
     res = mongo_replset_connect( conn );
 
@@ -45,7 +45,7 @@ int test_connect_deprecated( const char *set_name ) {
     return res;
 }
 
-int test_connect( const char *set_name ) {
+int test_connect( const char *server, const char *set_name ) {
 
     mongo conn[1];
     int res;
@@ -53,8 +53,8 @@ int test_connect( const char *set_name ) {
     INIT_SOCKETS_FOR_WINDOWS;
 
     mongo_replset_init( conn, set_name );
-    mongo_replset_add_seed( conn, TEST_SERVER, SEED_START_PORT + 1 );
-    mongo_replset_add_seed( conn, TEST_SERVER, SEED_START_PORT );
+    mongo_replset_add_seed( conn, server, SEED_START_PORT + 1 );
+    mongo_replset_add_seed( conn, server, SEED_START_PORT );
 
     res = mongo_replset_client( conn );
 
@@ -71,17 +71,18 @@ int test_connect( const char *set_name ) {
     return res;
 }
 
-int test_reconnect( const char *set_name ) {
+int test_reconnect(const char *server,  const char *set_name ) {
 
     mongo conn[1];
     int res = 0;
     int e = 0;
 
-    INIT_SOCKETS_FOR_WINDOWS;
+    GETSERVERNAME;
+INIT_SOCKETS_FOR_WINDOWS;
 
     mongo_replset_init( conn, set_name );
-    mongo_replset_add_seed( conn, TEST_SERVER, SEED_START_PORT );
-    mongo_replset_add_seed( conn, TEST_SERVER, SEED_START_PORT + 1 );
+    mongo_replset_add_seed( conn, server, SEED_START_PORT );
+    mongo_replset_add_seed( conn, server, SEED_START_PORT + 1 );
 
 
     if( ( mongo_replset_client( conn ) != MONGO_OK ) ) {
@@ -110,7 +111,7 @@ int test_reconnect( const char *set_name ) {
     return 0;
 }
 
-int test_insert_limits( const char *set_name ) {
+int test_insert_limits( const char *server, const char *set_name ) {
     char version[10];
     mongo conn[1];
     mongo_write_concern wc[1];
@@ -129,8 +130,8 @@ int test_insert_limits( const char *set_name ) {
         return 0;
 
     mongo_replset_init( conn, set_name );
-    mongo_replset_add_seed( conn, TEST_SERVER, SEED_START_PORT + 1 );
-    mongo_replset_add_seed( conn, TEST_SERVER, SEED_START_PORT );
+    mongo_replset_add_seed( conn, server, SEED_START_PORT + 1 );
+    mongo_replset_add_seed( conn, server, SEED_START_PORT );
     res = mongo_replset_client( conn );
 
     if( res != MONGO_OK ) {
@@ -170,7 +171,7 @@ int test_insert_limits( const char *set_name ) {
     return 0;
 }
 
-int main() {
+int main(int argc, char **argv) {
     ASSERT( test_connect_deprecated( REPLICA_SET_NAME ) == MONGO_OK );
     ASSERT( test_connect( REPLICA_SET_NAME ) == MONGO_OK );
     ASSERT( test_connect( "test-foobar" ) == MONGO_CONN_BAD_SET_NAME );

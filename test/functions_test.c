@@ -53,7 +53,7 @@ int my_errprintf( const char *format, ... ) {
    return ret;
 }
 
-int main() {
+int main(int argc, char **argv) {
 
     void *ptr;
     char str[32];
@@ -107,7 +107,7 @@ int main() {
     return 0;
 }
 #else
-int main() {
+int main(int argc, char **argv) {
 	return 0;
 }
 #endif

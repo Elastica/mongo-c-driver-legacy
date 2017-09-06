@@ -7,7 +7,7 @@
 /* 64 Xs */
 const char *bigstring = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
-int main() {
+int main(int argc, char **argv) {
     bson b;
 
     bson_init( &b );

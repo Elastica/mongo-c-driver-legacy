@@ -114,7 +114,7 @@ int test_error_messages( void ) {
     return 0;
 }
 
-int main() {
+int main(int argc, char **argv) {
     char version[10];
     INIT_SOCKETS_FOR_WINDOWS;
 

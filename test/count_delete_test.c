@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
 
-int main() {
+int main(int argc, char **argv) {
     mongo conn[1];
     bson b;
     int i;
@@ -15,8 +17,9 @@ int main() {
     const char *col = "c.simple";
     const char *ns = "test.c.simple";
 
+    GETSERVERNAME;
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     /* if the collection doesn't exist dropping it will fail */
     if ( !mongo_cmd_drop_collection( conn, "test", col, NULL )

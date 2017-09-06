@@ -388,7 +388,7 @@ static void clean( void ) {
     ASSERT( !mongo_cmd_get_last_error( conn, DB, NULL ) );
 }
 
-int main() {
+int main(int argc, char **argv) {
     INIT_SOCKETS_FOR_WINDOWS;
     CONN_CLIENT_TEST;
 

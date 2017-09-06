@@ -1,10 +1,12 @@
-#include "test.h"
 #include "mongo.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
+#include "test.h"
 
-int main() {
+int main(int argc, char **argv) {
     mongo conn[1];
     bson obj;
     bson cond;
@@ -13,13 +15,14 @@ int main() {
     const char *col = "c.update_test";
     const char *ns = "test.c.update_test";
 
+    GETSERVERNAME;
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     /* if the collection doesn't exist dropping it will fail */
     if ( mongo_cmd_drop_collection( conn, "test", col, NULL ) == MONGO_OK
             && mongo_find_one( conn, ns, bson_shared_empty( ), bson_shared_empty( ), NULL ) != MONGO_OK ) {
-        printf( "failed to drop collection\n" );
+        printf( "failed to drop collection" );
         exit( 1 );
     }
 
@@ -64,7 +67,7 @@ int main() {
     }
 
     if( mongo_find_one( conn, ns, &cond, 0, &obj ) != MONGO_OK ) {
-        printf( "Failed to find object\n" );
+        printf( "Failed to find object" );
         exit( 1 );
     } else {
         int fields = 0;

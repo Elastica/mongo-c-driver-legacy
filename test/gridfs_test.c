@@ -9,6 +9,7 @@
 #include <limits.h>
 #ifndef _WIN32
 #include <unistd.h>
+#include <getopt.h>
 #endif
 
 #define LARGE 3*1024*1024
@@ -132,7 +133,7 @@ void test_gridfile( gridfs *gfs, char *data_before, int64_t length, char *filena
     gridfs_test_unlink( "output" );
 }
 
-void test_basic( void ) {
+void test_basic( char *_servername ) {
     mongo conn[1];
     gridfs gfs[1];
     char *data_before = (char*)bson_malloc( UPPER );
@@ -142,7 +143,7 @@ void test_basic( void ) {
     srand((unsigned int) time( NULL ) );
 
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
     GFS_INIT;
 
     fill_buffer_randomly( data_before, UPPER );
@@ -174,7 +175,7 @@ void test_basic( void ) {
     gridfs_test_unlink( "output" );
 }
 
-void test_delete( void ) {
+void test_delete( char *_servername ) {
     mongo conn[1];
     gridfs gfs[1];
     gridfile gfile[1];
@@ -182,7 +183,7 @@ void test_delete( void ) {
     const char *testFile = "test-delete";
 
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
     GFS_INIT;
 
     memset( data, '\0', 1024 );
@@ -202,7 +203,7 @@ void test_delete( void ) {
     bson_free( data );
 }
 
-void test_streaming( void ) {
+void test_streaming( char* _servername ) {
     mongo conn[1];
     gridfs gfs[1];
     gridfile gfile[1];
@@ -219,7 +220,7 @@ void test_streaming( void ) {
     srand( (unsigned int)time( NULL ) );
 
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     fill_buffer_randomly( medium, ( int64_t )2 * MEDIUM );
     fill_buffer_randomly( small, ( int64_t )LOWER );
@@ -257,7 +258,7 @@ void test_streaming( void ) {
     free( medium );
 }
 
-void test_random_write() {
+void test_random_write(char *_servername) {
     mongo conn[1];
     gridfs gfs[1];
     gridfile* gfile;
@@ -270,7 +271,7 @@ void test_random_write() {
     srand((unsigned int) time( NULL ) );
 
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
     GFS_INIT;
 
     fill_buffer_randomly( data_before, UPPER );
@@ -329,7 +330,7 @@ void test_random_write() {
     gridfs_test_unlink( "output" );   
 }
 
-void test_random_write2( void ) {
+void test_random_write2( char *_servername ) {
     mongo conn[1];
     gridfs gfs[1];
     gridfile gfile[1];
@@ -346,7 +347,7 @@ void test_random_write2( void ) {
     srand( 123 ); // Init with a predictable value
 
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     fill_buffer_randomly( buf, ( int64_t )LARGE );
     memset( zeroedbuf, 0, LARGE ); 
@@ -395,7 +396,7 @@ void test_random_write2( void ) {
     free( zeroedbuf );
 }
 
-void test_large( void ) {
+void test_large( char *_servername ) {
     mongo conn[1];
     gridfs gfs[1];
     gridfile gfile[1];
@@ -411,7 +412,7 @@ void test_large( void ) {
     srand( (unsigned int) time( NULL ) );
 
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
     
     mongo_write_concern_init(&wc);
     wc.j = 1;
@@ -505,15 +506,16 @@ void test_large( void ) {
     mongo_write_concern_destroy( &wc );
 }
 
-int main( void ) {
+int main( int argc, char **argv ) {
 /* See https://jira.mongodb.org/browse/CDRIVER-126
  * on why we exclude this test from running on WIN32 */
- 
-    test_basic();
-    test_delete();
-    test_streaming();
-    test_random_write();
-    test_random_write2();
+
+    GETSERVERNAME;
+    test_basic(_servername);
+    test_delete(_servername);
+    test_streaming(_servername);
+    test_random_write(_servername);
+    test_random_write2(_servername);
     
     /* Normally not necessary to run test_large(), as it
      * deals with very large (5GB) files and is therefore slow. */

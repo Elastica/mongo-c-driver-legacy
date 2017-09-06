@@ -94,7 +94,7 @@ int test_bson_init_finished( void ) {
     return 0;
 }
 
-int main() {
+int main(int argc, char **argv) {
   bson_malloc_func = malloc_for_tests;
   bson_realloc_func = realloc_for_tests;
   bson_free_func = free_for_tests;

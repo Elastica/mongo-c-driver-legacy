@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <getopt.h>
 
-int main() {
+int main(int argc, char **argv) {
     mongo conn[1];
     bson cmd[1];
     bson out[1];
@@ -16,8 +17,9 @@ int main() {
     const char *db = "test";
     const char *col = "c.capped";
 
-    INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    GETSERVERNAME;
+INIT_SOCKETS_FOR_WINDOWS;
+    CONN_CLIENT_TEST(_servername);
 
     mongo_cmd_drop_collection( conn, db, col, NULL );
 
@@ -31,7 +33,7 @@ int main() {
     ASSERT( mongo_run_command( conn, db, cmd, out ) == MONGO_OK );
 
     if( mongo_get_server_version( version ) != -1 ){
-        if( version[0] == '2' && version[2] >= '1' )
+        if((version[0] == '2' || version[0] == '3') && version[2] >= '1' )
             ASSERT( bson_find( it, out, "capped" ) == BSON_BOOL );
         else ASSERT( bson_find( it, out, "capped" ) == BSON_INT );
     }

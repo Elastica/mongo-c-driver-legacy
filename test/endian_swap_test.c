@@ -4,7 +4,7 @@
 #include "bson.h"
 #include <stdio.h>
 
-int main() {
+int main(int argc, char **argv) {
     int small = 0x00112233;
     int64_t big = 0x0011223344556677;
     double d = 1.2345;

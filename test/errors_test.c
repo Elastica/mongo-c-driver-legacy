@@ -1,13 +1,15 @@
-#include "test.h"
 #include "mongo.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
+#include "test.h"
 
 static const char *db = "test";
 static const char *ns = "test.c.error";
 
-int test_namespace_validation( void ) {
+int test_namespace_validation(char *_servername ) {
     mongo conn[1];
     char longns[130] = "test.foo";
     int i;
@@ -97,13 +99,13 @@ int test_namespace_validation( void ) {
     return 0;
 }
 
-int test_namespace_validation_on_insert( void ) {
+int test_namespace_validation_on_insert(char *_servername ) {
     mongo conn[1];
     bson b[1], b2[1];
     bson *objs[2];
 
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     bson_init( b );
     bson_append_int( b, "foo", 1 );
@@ -133,7 +135,7 @@ int test_namespace_validation_on_insert( void ) {
     return 0;
 }
 
-int test_insert_limits( void ) {
+int test_insert_limits( char *_servername) {
     char version[10];
     mongo conn[1];
     int i;
@@ -149,7 +151,7 @@ int test_insert_limits( void ) {
     if( mongo_get_server_version( version ) != -1 && version[0] <= '1' )
         return 0;
 
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     ASSERT( conn->max_bson_size > MONGO_DEFAULT_MAX_BSON_SIZE );
 
@@ -186,12 +188,12 @@ int test_insert_limits( void ) {
     return 0;
 }
 
-int test_get_last_error_commands( void ) {
+int test_get_last_error_commands( char *_servername ) {
     mongo conn[1];
     bson obj;
 
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     /*********************/
     ASSERT( mongo_cmd_get_prev_error( conn, db, NULL ) == MONGO_OK );
@@ -259,11 +261,13 @@ int test_get_last_error_commands( void ) {
     return 0;
 }
 
-int main() {
-    test_get_last_error_commands();
-    test_insert_limits();
-    test_namespace_validation();
-    test_namespace_validation_on_insert();
+int main(int argc, char **argv) {
+
+    GETSERVERNAME;
+    test_get_last_error_commands(_servername);
+    test_insert_limits(_servername);
+    test_namespace_validation(_servername);
+    test_namespace_validation_on_insert(_servername);
 
     return 0;
 }

@@ -345,7 +345,7 @@ int test_bson_oid_generated_time( void ) {
     return 0;
 }
 
-int main() {
+int main(int argc, char **argv) {
 
   test_bson_generic();
   test_bson_iterator();

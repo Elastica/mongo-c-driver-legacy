@@ -3,15 +3,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
 
 static const char *db = "test";
 
-int main() {
+int main(int argc, char **argv) {
 
     mongo conn[1];
 
-    INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    GETSERVERNAME;
+INIT_SOCKETS_FOR_WINDOWS;
+    CONN_CLIENT_TEST(_servername)(_servername);
 
     mongo_cmd_drop_db( conn, db );
 

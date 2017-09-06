@@ -5,7 +5,6 @@
     do{ \
         if(!(x)){ \
             printf("\nFailed ASSERT [%s] (%d):\n     %s\n\n", __FILE__,  __LINE__,  #x); \
-            exit(1); \
         }\
     }while(0)
 
@@ -27,12 +26,44 @@ const char *TEST_DB = "test";
 const char *TEST_COL = "foo";
 const char *TEST_NS = "test.foo";
 
-#define CONN_CLIENT_TEST \
+
+#define GETSERVERNAME \
+    char _c; \
+    char *_servername; \
+    \
+    while ((_c = getopt (argc, argv, "s:")) != -1) { \
+        switch (_c) \
+        { \
+        case 's': \
+            _servername = optarg; \
+            break; \
+        case '?': \
+            if (optopt == 's') \
+                fprintf (stderr, "Option -%c requires an argument.\n", optopt); \
+        else if (isprint (optopt)) \
+            fprintf (stderr, "Unknown option `-%c'.\n", optopt); \
+        else \
+            fprintf (stderr, \
+                     "Unknown option character `\\x%x'.\n", \
+                     optopt); \
+            return 1; \
+        default: \
+            abort (); \
+        }\
+    }\
+
+
+#define CONN_CLIENT_TEST(_x)                     \
     mongo_init(conn); \ 
-    if( mongo_client( conn, TEST_SERVER, 27017 ) != MONGO_OK ) { \
+    if( mongo_client( conn, _x, 27017 ) != MONGO_OK ) { \
         printf( "Failed to connect" ); \
         exit( 1 ); \
     } \
+    if (mongo_cmd_authenticate( conn, "admin", "admin", "admin" ) != MONGO_OK ) {  \
+       printf( "Failed to connect" ); \
+       exit(1); \
+    }
+
 
 MONGO_EXTERN_C_START
 

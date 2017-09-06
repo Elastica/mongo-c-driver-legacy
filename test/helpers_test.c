@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
+#include <getopt.h>
 
 void test_index_helper( mongo *conn ) {
     int ret;
@@ -56,12 +58,13 @@ void test_index_helper_invalid( mongo *conn ) {
     bson_destroy( &out );
 }
 
-int main() {
+int main(int argc, char **argv) {
 
     mongo conn[1];
 
-    INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    GETSERVERNAME;
+INIT_SOCKETS_FOR_WINDOWS;
+    CONN_CLIENT_TEST(_servername);
 
     test_index_helper( conn );
     test_index_helper_invalid( conn );

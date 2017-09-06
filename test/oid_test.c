@@ -18,7 +18,7 @@ int fuzz( void ) {
 }
 
 /* Test custom increment and fuzz functions. */
-int main() {
+int main(int argc, char **argv) {
 
     bson_oid_t o;
     int res;

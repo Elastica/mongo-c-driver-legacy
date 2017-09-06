@@ -7,14 +7,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-int main() {
+int main(int argc, char **argv) {
     mongo conn[1];
     char version[10];
 
-    INIT_SOCKETS_FOR_WINDOWS;
+    GETSERVERNAME;
+INIT_SOCKETS_FOR_WINDOWS;
 
     if( mongo_connect( conn, TEST_SERVER, 27017 ) != MONGO_OK ) {
-        printf( "failed to connect\n" );
+        printf( "failed to connect" );
         exit( 1 );
     }
 

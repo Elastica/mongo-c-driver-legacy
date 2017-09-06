@@ -8,12 +8,13 @@
 
 using namespace std;
 
-int main(){
+int main(int argc, char **argv){
     mongo conn[1];
     bson b;
 
+    GETSERVERNAME;
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     for(int i=0; i< 5; i++){
         bson_init( &b );

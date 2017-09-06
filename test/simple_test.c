@@ -1,20 +1,22 @@
 /* test.c */
 
-#include "test.h"
 #include "mongo.h"
 #include "env.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
+#include "test.h"
 
-int main() {
+
+int main(int argc, char **argv) {
     mongo conn[1];
     mongo_cursor cursor[1];
     bson b;
     int i;
     char hex_oid[25];
     bson_timestamp_t ts = { 1, 2 };
-
     const char *col = "c.simple";
     const char *ns = "test.c.simple";
 
@@ -24,7 +26,7 @@ int main() {
     mongo conn[1];
 
     mongo_init( conn );
-    mongo_client( conn, TEST_SERVER, 27017 );
+    mongo_client( conn, _servername, 27017 );
     mongo_destroy( conn );
 
     * Advanced and replica set API
@@ -61,8 +63,9 @@ int main() {
     mongo_cursor_destroy( cursor );
     */
 
+    GETSERVERNAME;
     INIT_SOCKETS_FOR_WINDOWS;
-    CONN_CLIENT_TEST;
+    CONN_CLIENT_TEST(_servername);
 
     mongo_cmd_drop_collection( conn, "test", col, NULL );
     mongo_find_one( conn, ns, bson_shared_empty( ), bson_shared_empty( ), NULL );
