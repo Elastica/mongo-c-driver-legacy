@@ -1305,24 +1305,6 @@ static int mongo_cursor_get_more( mongo_cursor *cursor ) {
         if( res != MONGO_OK )
             return MONGO_ERROR;
 
-/* ELASTICA BEGINS
- * Check if reply lies within allowed BSON dataSize limit
- * If size exceeds then lodge any MONGO_READ_SIZE_ERROR
- * This would allow c-icap to reconnect with mongo
- * */
-        replySize = bson_finished_data_size( cursor->current.data );
-        if (replySize > cursor->reply->head.len) {
-            __mongo_set_error( cursor->conn, MONGO_READ_SIZE_ERROR,
-                               "BSON data overflow", 0 );
-            return MONGO_ERROR;
-        }
-        if (replySize > cursor->conn->max_bson_size) {
-            __mongo_set_error( cursor->conn, MONGO_READ_SIZE_ERROR,
-                               "BSON data overflow", 0 );
-            return MONGO_ERROR;
-        }
-/* ELASTICA ENDS*/
-
         cursor->current.data = NULL;
         cursor->seen += cursor->reply->fields.num;
 

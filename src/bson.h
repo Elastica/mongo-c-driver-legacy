@@ -212,9 +212,6 @@ MONGO_EXPORT void bson_dealloc( bson* b );
  */
 MONGO_EXPORT int bson_init_finished_data( bson *b, char *data, bson_bool_t ownsData );
 
-/* When passed a char * of a BSON data block, returns its reported size */
-MONGO_EXPORT int bson_finished_data_size( const char *data );
-
 /**
  * Initialize a BSON object for reading and copy finalized
  * BSON data from the provided char*.
