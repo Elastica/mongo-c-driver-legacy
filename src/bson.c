@@ -75,7 +75,7 @@ MONGO_EXPORT void bson_dealloc( bson* b ) {
 }
 
 /* When passed a char * of a BSON data block, returns its reported size */
-static int bson_finished_data_size( const char *data ) {
+int bson_finished_data_size( const char *data ) {
     int i;
     bson_little_endian32( &i, data );
     return i;
