@@ -1161,9 +1161,28 @@ MONGO_EXPORT void mongo_write_concern_set_mode( mongo_write_concern *write_conce
     write_concern->mode = mode;
 }
 
+/* ELASTICA BEGINS
+ * Check if reply lies within allowed BSON dataSize limit
+ * If size exceeds then lodge any MONGO_READ_SIZE_ERROR
+ * This would allow c-icap to reconnect with mongo
+ * */
+static int mongo_check_bson_overflow( int replySize, mongo_cursor *cursor ) {
+    if (replySize > cursor->reply->head.len) {
+        __mongo_set_error( cursor->conn, MONGO_READ_SIZE_ERROR,
+                "BSON data overflow", 0 );
+        return MONGO_ERROR;
+    }
+    if (replySize > cursor->conn->max_bson_size) {
+        __mongo_set_error( cursor->conn, MONGO_READ_SIZE_ERROR,
+                "BSON data overflow", 0 );
+        return MONGO_ERROR;
+    }
+    return MONGO_OK;
+}
+/* ELASTICA ENDS */
+
 static int mongo_cursor_op_query( mongo_cursor *cursor ) {
     int res;
-    int replySize;
     char *data;
     mongo_message *mm;
     bson temp;
@@ -1220,23 +1239,6 @@ static int mongo_cursor_op_query( mongo_cursor *cursor ) {
     if( cursor->reply->fields.num == 1 ) {
         bson_init_finished_data( &temp, &cursor->reply->objs, 0 );
 
-/* ELASTICA BEGINS
- * Check if reply lies within allowed BSON dataSize limit
- * If size exceeds then lodge any MONGO_READ_SIZE_ERROR
- * This would allow c-icap to reconnect with mongo
- * */
-        replySize = temp.dataSize;
-        if (replySize > cursor->reply->head.len) {
-            __mongo_set_error( cursor->conn, MONGO_READ_SIZE_ERROR,
-                               "BSON data overflow", 0 );
-            return MONGO_ERROR;
-        }
-        if (replySize > cursor->conn->max_bson_size) {
-            __mongo_set_error( cursor->conn, MONGO_READ_SIZE_ERROR,
-                               "BSON data overflow", 0 );
-            return MONGO_ERROR;
-        }
-/* ELASTICA ENDS */
         if( bson_find( &it, &temp, "$err" ) ) {
             mongo_set_last_error( cursor->conn, &it, &temp );
             cursor->err = MONGO_CURSOR_QUERY_FAIL;
@@ -1246,12 +1248,11 @@ static int mongo_cursor_op_query( mongo_cursor *cursor ) {
 
     cursor->seen += cursor->reply->fields.num;
     cursor->flags |= MONGO_CURSOR_QUERY_SENT;
-    return MONGO_OK;
+    return mongo_check_bson_overflow( temp.dataSize, cursor );
 }
 
 static int mongo_cursor_get_more( mongo_cursor *cursor ) {
     int res;
-    int replySize;
 
     if( cursor->limit > 0 && cursor->seen >= cursor->limit ) {
         cursor->err = MONGO_CURSOR_EXHAUSTED;
