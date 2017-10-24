@@ -1239,6 +1239,9 @@ static int mongo_cursor_op_query( mongo_cursor *cursor ) {
     if( cursor->reply->fields.num == 1 ) {
         bson_init_finished_data( &temp, &cursor->reply->objs, 0 );
 
+        if( mongo_check_bson_overflow( temp.dataSize, cursor ) == MONGO_ERROR )
+            return MONGO_ERROR;
+
         if( bson_find( &it, &temp, "$err" ) ) {
             mongo_set_last_error( cursor->conn, &it, &temp );
             cursor->err = MONGO_CURSOR_QUERY_FAIL;
@@ -1248,7 +1251,7 @@ static int mongo_cursor_op_query( mongo_cursor *cursor ) {
 
     cursor->seen += cursor->reply->fields.num;
     cursor->flags |= MONGO_CURSOR_QUERY_SENT;
-    return mongo_check_bson_overflow( temp.dataSize, cursor );
+    return MONGO_OK;
 }
 
 static int mongo_cursor_get_more( mongo_cursor *cursor ) {
