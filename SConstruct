@@ -276,7 +276,7 @@ def run_tests( root, tests, env, alias ):
         filename = "%s/%s_test.c" % (root, name)
         exe = "test_" + name
         test = env.Program( exe , testCoreFiles + [filename]  )
-        test_alias = env.Alias(alias, [test], test[0].abspath + ' 2> ' + os.path.devnull)
+        test_alias = env.Alias(alias, [test], test[0].abspath + ' -s 127.0.0.1 2> ' + os.path.devnull)
         AlwaysBuild(test_alias)
 
 tests = Split("write_concern commands sizes resize endian_swap bson_alloc bson bson_subobject simple update errors "
@@ -294,7 +294,7 @@ if have_libjson:
 
 # special case for cpptest
 test = testEnv.Program( 'test_cpp' , testCoreFiles + ['test/cpptest.cpp']  )
-test_alias = testEnv.Alias('test', [test], test[0].abspath + ' 2> '+ os.path.devnull)
+test_alias = testEnv.Alias('test', [test], test[0].abspath + ' -s 127.0.0.1 2> '+ os.path.devnull)
 AlwaysBuild(test_alias)
 
 # Run replica set test only

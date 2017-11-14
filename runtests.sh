@@ -35,8 +35,8 @@ do
     echo $CMD
     $CMD
   else
-    echo $i
-    $i
+    echo $i -s 127.0.0.1
+    $i -s 127.0.0.1
   fi
 
   if [ $? != 0 ];
